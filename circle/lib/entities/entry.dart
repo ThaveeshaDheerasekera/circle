@@ -1,9 +1,11 @@
+import 'dart:io';
+
 class Entry {
-  final int entry_id;
-  final String title;
-  final String content;
-  final String? image;
-  final DateTime created_at;
+  int entry_id;
+  String title;
+  String content;
+  File? image;
+  DateTime created_at;
   bool isCollapsed;
 
   Entry({

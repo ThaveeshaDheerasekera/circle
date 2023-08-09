@@ -1,3 +1,4 @@
+import 'package:circle/screens/manipulate_entry_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -74,7 +75,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: double.infinity,
                 height: 50,
                 borderRadius: 2,
-                onPressed: () {},
+                onPressed: () {
+                  // Navigate to AddEntryScreen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ManipulateEntryScreen(),
+                    ),
+                  );
+                },
               ),
             ),
           ],

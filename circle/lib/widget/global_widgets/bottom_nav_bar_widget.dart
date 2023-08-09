@@ -28,12 +28,7 @@ class _BottomNavBarWidgetState extends State<BottomNavBarWidget> {
         body: Container(
           height: Constants.screenSize(context).height,
           color: CustomColors.background,
-          padding: EdgeInsets.fromLTRB(
-            Constants.screenSize(context).height * 0.02,
-            0,
-            Constants.screenSize(context).height * 0.02,
-            0,
-          ),
+          padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
           child: _screens[_currentIndex],
         ),
         bottomNavigationBar: BottomNavigationBar(

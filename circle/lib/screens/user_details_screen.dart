@@ -1,4 +1,6 @@
 import 'package:circle/configs/Constants.dart';
+import 'package:circle/screens/home_screen.dart';
+import 'package:circle/widget/global_widgets/bottom_nav_bar_widget.dart';
 import 'package:flutter/material.dart';
 
 import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
@@ -73,8 +75,12 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                           ),
                           const SizedBox(height: 15),
                           Container(
-                            height: 180,
-                            width: 180,
+                            height: 200,
+                            width: 200,
+                            decoration: BoxDecoration(
+                              border: Border.all(width: 1, color: Colors.grey),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(2),
                               child: Image.network(
@@ -271,7 +277,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
               width: double.infinity,
               height: 50,
               borderRadius: 2,
-              onPressed: () {},
+              onPressed: null,
             ),
           ),
         ],

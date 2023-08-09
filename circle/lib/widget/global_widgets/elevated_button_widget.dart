@@ -7,7 +7,7 @@ class ElevatedButtonWidget extends StatefulWidget {
   final double height;
   final double borderRadius;
   final Color? backgroundColor;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   ElevatedButtonWidget({
     Key? key,

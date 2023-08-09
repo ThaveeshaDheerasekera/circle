@@ -1,4 +1,5 @@
-import 'package:circle/configs/custom_colors.dart';
+import 'dart:io';
+import 'package:circle/screens/manipulate_entry_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +21,7 @@ class EntryWidget extends StatefulWidget {
   final int index;
   final String title;
   final String content;
-  final String? image;
+  final File? image;
   final DateTime created_at;
   final bool? isFav;
 
@@ -75,10 +76,10 @@ class _EntryWidgetState extends State<EntryWidget> {
                     ),
                   ),
                 ),
-                widget.isFav == false
-                    ? IconButton(
-                        visualDensity: VisualDensity.compact,
-                        onPressed: () {
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  onPressed: widget.isFav == false
+                      ? () {
                           if (!entriesModel.isEntryInFavorites(entry)) {
                             entriesModel.addToFavorites(entry);
                             print(entriesModel.getFavoriteEntriesList());
@@ -90,29 +91,35 @@ class _EntryWidgetState extends State<EntryWidget> {
                             _showSnackBar(context,
                                 '[ Entry ID: ${entry.entry_id} ]    Removed from favorites');
                           }
-                        },
-                        icon: Icon(
+                        }
+                      : null,
+                  icon: widget.isFav == false
+                      ? Icon(
                           entriesModel.isEntryInFavorites(entry)
                               ? Icons.favorite
                               : Icons.favorite_border,
                           size: 20,
-                        ),
-                      )
-                    : IconButton(
-                        onPressed: null,
-                        disabledColor: Colors.black87.withOpacity(0.75),
-                        icon: Icon(
-                          Icons.favorite,
-                          size: 20,
-                        ),
-                      ),
+                        )
+                      : Icon(Icons.favorite, size: 20),
+                ),
                 // Edit button
                 ElevatedButtonWidget(
                   child: Text('Edit'),
                   width: 50,
                   height: 30,
                   borderRadius: 2,
-                  onPressed: () {},
+                  onPressed: widget.isFav == false
+                      ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ManipulateEntryScreen(
+                                entry: entry,
+                              ),
+                            ),
+                          );
+                        }
+                      : null,
                 ),
               ],
             ),
@@ -169,22 +176,32 @@ class _EntryWidgetState extends State<EntryWidget> {
                   width: double.infinity,
                   child: Text(widget.content),
                 ),
-                const SizedBox(height: 15),
-                // 'image' attribute of the Entry
-                // Show empty SizedBox() widget if,
-                // no image is there
-                Container(
-                  width: double.infinity,
-                  child: widget.image != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(2),
-                          child: Image.network(
-                            widget.image!,
-                            fit: BoxFit.cover,
+                widget.image != null
+                    ? Column(
+                        children: [
+                          const SizedBox(height: 15),
+                          // 'image' attribute of the Entry
+                          // Show empty SizedBox() widget if,
+                          // no image is there
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                              border: Border.all(width: 1, color: Colors.grey),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(2),
+                              child: widget.image is File
+                                  ? Image.file(widget.image!,
+                                      fit: BoxFit.fitWidth)
+                                  : Image.asset(widget.image!.path,
+                                      fit: BoxFit.fitWidth),
+                            ),
                           ),
-                        )
-                      : SizedBox(),
-                ),
+                        ],
+                      )
+                    : SizedBox(),
               ],
             ),
           ),
