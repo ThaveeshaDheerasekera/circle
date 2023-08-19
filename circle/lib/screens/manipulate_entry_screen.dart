@@ -1,14 +1,16 @@
 import 'dart:io';
-import 'package:circle/entities/entry.dart';
-import 'package:circle/models/entries_model.dart';
+import 'package:circle/configs/url_location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import 'package:circle/configs/custom_colors.dart';
 import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
 import 'package:circle/widget/global_widgets/text_field_widget.dart';
-import 'package:provider/provider.dart';
+import 'package:circle/entities/entry.dart';
+import 'package:circle/models/entries_model.dart';
+import 'package:circle/widget/global_widgets/form_item_widget.dart';
 
 class ManipulateEntryScreen extends StatefulWidget {
   final Entry? entry;
@@ -25,6 +27,8 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
   File? image;
 
   void onSubmit() {
+    final model = Provider.of<EntriesModel>(context, listen: false);
+
     // Get the title text and content text
     final title = _titleController.text;
     final content = _contentController.text;
@@ -33,28 +37,28 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
     // If !empty --> proceed
     // If empty --> show error message saying title or content is missing
     if (title.isNotEmpty && content.isNotEmpty) {
-      final entriesModel = Provider.of<EntriesModel>(context, listen: false);
-
       // If this screen is called without an Entry object passed as a parameter,
       // Treats like a new entry,
       // Otherwise get the existing values and display them and,
       // Update them if those values are updated
       if (widget.entry == null) {
-        entriesModel.addEntry(title, content, image);
-
+        model.createEntry(title, content, image, 1);
         // Navigate back after adding the entry
         Navigator.pop(context);
         _showSnackBar(context, 'New entry added successfully.');
       } else {
-        // Update method
-        // TODO: "widget.entry!.entry_id - 1" -- This should be changed when Future Provider is used, because then index starts from 1 instead of 0
-        entriesModel.editEntry(
-            widget.entry!.entry_id - 1, title, content, image);
-
+        // If an existing entry is being updated...
+        if (image == null) {
+          // If the image is cleared, update the entry with null as the image
+          model.updateEntry(widget.entry!.entry_id, title, content, null);
+        } else {
+          // If a new image is selected, update the entry with the new image
+          model.updateEntry(widget.entry!.entry_id, title, content, image);
+        }
         // Navigate back after adding/updating the entry
         Navigator.pop(context);
         _showSnackBar(context,
-            '[ Entry ID: ${widget.entry!.entry_id - 1} ] Updated successfully.');
+            '[ Entry ID: ${widget.entry!.entry_id} ] Updated successfully.');
       }
     } else {
       _showSnackBar(context, 'Title and content are required.');
@@ -75,6 +79,7 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
 
   // Function to clear the image
   void clearImage() {
+    print('clear');
     setState(() {
       image = null;
     });
@@ -90,7 +95,6 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
     if (widget.entry != null) {
       _titleController.text = widget.entry!.title;
       _contentController.text = widget.entry!.content;
-      image = widget.entry!.image;
     }
   }
 
@@ -137,206 +141,67 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
                     margin: EdgeInsets.only(top: 15),
                     child: Column(
                       children: [
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(width: 1, color: Colors.grey),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                height: 50,
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(horizontal: 15),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(2),
-                                    bottomRight: Radius.circular(2),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        margin: EdgeInsets.only(right: 15),
-                                        child: SingleChildScrollView(
-                                          physics: BouncingScrollPhysics(),
-                                          scrollDirection: Axis.horizontal,
-                                          child: Text('Title'),
-                                        ),
-                                      ),
-                                    ),
-                                    ElevatedButtonWidget(
-                                      child: Text('Clear'),
-                                      width: 50,
-                                      height: 30,
-                                      borderRadius: 2,
-                                      onPressed: () => _titleController.clear(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              TextFieldWidget(
-                                maxLength: 50,
-                                hintText: 'Trip to Kandy',
-                                controller: _titleController,
-                                keyboardType: TextInputType.text,
-                                textCapitalization: TextCapitalization.words,
-                              ),
-                            ],
+                        FormItemWidget(
+                          title: 'Title',
+                          onPressed: () => _titleController.clear(),
+                          child: TextFieldWidget(
+                            maxLength: 50,
+                            hintText: 'Title',
+                            controller: _titleController,
+                            keyboardType: TextInputType.text,
+                            textCapitalization: TextCapitalization.words,
                           ),
                         ),
                         const SizedBox(height: 15),
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(width: 1, color: Colors.grey),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                height: 50,
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(horizontal: 15),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(2),
-                                    bottomRight: Radius.circular(2),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        margin: EdgeInsets.only(right: 15),
-                                        child: SingleChildScrollView(
-                                          physics: BouncingScrollPhysics(),
-                                          scrollDirection: Axis.horizontal,
-                                          child: Text('Content'),
-                                        ),
-                                      ),
-                                    ),
-                                    ElevatedButtonWidget(
-                                      child: Text('Clear'),
-                                      width: 50,
-                                      height: 30,
-                                      borderRadius: 2,
-                                      onPressed: () =>
-                                          _contentController.clear(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              TextFieldWidget(
-                                maxLines: 15,
-                                hintText: 'My friends and I went to Kandy...',
-                                controller: _contentController,
-                                keyboardType: TextInputType.multiline,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                              ),
-                            ],
+                        FormItemWidget(
+                          title: 'Content',
+                          onPressed: () => _contentController.clear(),
+                          child: TextFieldWidget(
+                            maxLines: 15,
+                            hintText: 'My friends and I went to Kandy...',
+                            controller: _contentController,
+                            keyboardType: TextInputType.multiline,
+                            textCapitalization: TextCapitalization.sentences,
                           ),
                         ),
                         const SizedBox(height: 15),
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(width: 1, color: Colors.grey),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
+                        FormItemWidget(
+                          title: 'Add a photo',
+                          onPressed: () => clearImage(),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                height: 50,
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(horizontal: 15),
+                                height: 200,
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(2),
-                                    bottomRight: Radius.circular(2),
-                                  ),
+                                  border:
+                                      Border.all(width: 1, color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(2),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        margin: EdgeInsets.only(right: 15),
-                                        child: SingleChildScrollView(
-                                          physics: BouncingScrollPhysics(),
-                                          scrollDirection: Axis.horizontal,
-                                          child: Text('Add a photo'),
+                                child: image != null
+                                    ? Image.file(image!, fit: BoxFit.scaleDown)
+                                    : Center(
+                                        child: Text(
+                                          widget.entry?.image != null
+                                              ? 'Choose a new image from your\ngallery or take a photo.\nYou can leave it blank\nif you do not wish to\nupdate the current photo.'
+                                              : 'Choose an image from your\ngallery or take a photo.\nYou can leave it blank.',
+                                          textAlign: TextAlign.center,
                                         ),
                                       ),
-                                    ),
-                                    ElevatedButtonWidget(
-                                      child: Text('Clear'),
-                                      width: 50,
-                                      height: 30,
-                                      borderRadius: 2,
-                                      onPressed: () => clearImage(),
-                                    ),
-                                  ],
-                                ),
                               ),
                               const SizedBox(height: 15),
-                              Column(
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 1, color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                    child: image != null
-                                        ? Image.file(image!,
-                                            fit: BoxFit.fitWidth)
-                                        : Text(
-                                            'Choose an image from your gallery.\nYou can leave it blank.',
-                                            textAlign: TextAlign.center,
-                                          ),
-                                  ),
-                                  const SizedBox(height: 15),
-                                  ElevatedButtonWidget(
-                                    child: Text('Gallery'),
-                                    width: 150,
-                                    height: 35,
-                                    borderRadius: 2,
-                                    onPressed: () =>
-                                        pickImage(ImageSource.gallery),
-                                  ),
-                                  ElevatedButtonWidget(
-                                    child: Text('Camera'),
-                                    width: 150,
-                                    height: 35,
-                                    borderRadius: 2,
-                                    onPressed: () =>
-                                        pickImage(ImageSource.camera),
-                                  ),
-                                ],
+                              ElevatedButtonWidget(
+                                child: Text('Gallery'),
+                                width: 150,
+                                height: 35,
+                                borderRadius: 2,
+                                onPressed: () => pickImage(ImageSource.gallery),
+                              ),
+                              ElevatedButtonWidget(
+                                child: Text('Camera'),
+                                width: 150,
+                                height: 35,
+                                borderRadius: 2,
+                                onPressed: () => pickImage(ImageSource.camera),
                               ),
                             ],
                           ),

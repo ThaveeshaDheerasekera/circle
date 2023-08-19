@@ -1,6 +1,5 @@
 import 'package:circle/configs/Constants.dart';
 import 'package:circle/configs/custom_colors.dart';
-import 'package:circle/screens/favorites_screen.dart';
 import 'package:circle/screens/home_screen.dart';
 import 'package:circle/screens/user_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,6 @@ class _BottomNavBarWidgetState extends State<BottomNavBarWidget> {
   // This is the list of screens available
   final List<Widget> _screens = [
     HomeScreen(),
-    FavoritesScreen(),
     UserDetailsScreen(),
   ];
 
@@ -32,6 +30,8 @@ class _BottomNavBarWidgetState extends State<BottomNavBarWidget> {
           child: _screens[_currentIndex],
         ),
         bottomNavigationBar: BottomNavigationBar(
+          elevation: 0,
+          backgroundColor: CustomColors.olive,
           showSelectedLabels: false, // Hide selected labels
           showUnselectedLabels: false, // Hide unselected labels
           currentIndex: _currentIndex,
@@ -47,15 +47,9 @@ class _BottomNavBarWidgetState extends State<BottomNavBarWidget> {
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: 'Home',
-            ),
-            // Favorite screen
+            ), // User information screen
             BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              label: 'Favorites',
-            ),
-            // User information screen
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
+              icon: Icon(Icons.account_box),
               label: 'User Info',
             ),
           ],

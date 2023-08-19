@@ -1,11 +1,13 @@
 import 'dart:io';
-import 'package:circle/screens/manipulate_entry_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
 import 'package:circle/models/entries_model.dart';
+import 'package:circle/configs/url_location.dart';
+import 'package:circle/screens/image_view_screen.dart';
+import 'package:circle/screens/manipulate_entry_screen.dart';
 
 class EntryWidget extends StatefulWidget {
   const EntryWidget({
@@ -15,15 +17,13 @@ class EntryWidget extends StatefulWidget {
     required this.content,
     required this.image,
     required this.created_at,
-    this.isFav = false,
   }) : super(key: key);
 
   final int index;
   final String title;
   final String content;
-  final File? image;
+  final String? image;
   final DateTime created_at;
-  final bool? isFav;
 
   @override
   State<EntryWidget> createState() => _EntryWidgetState();
@@ -33,7 +33,7 @@ class _EntryWidgetState extends State<EntryWidget> {
   @override
   Widget build(BuildContext context) {
     final entriesModel = Provider.of<EntriesModel>(context, listen: false);
-    final entry = entriesModel.getEntriesList()[widget.index];
+    final entry = entriesModel.entryList[widget.index];
 
     // List item - main container
     return Container(
@@ -78,29 +78,11 @@ class _EntryWidgetState extends State<EntryWidget> {
                 ),
                 IconButton(
                   visualDensity: VisualDensity.compact,
-                  onPressed: widget.isFav == false
-                      ? () {
-                          if (!entriesModel.isEntryInFavorites(entry)) {
-                            entriesModel.addToFavorites(entry);
-                            print(entriesModel.getFavoriteEntriesList());
-                            _showSnackBar(context,
-                                '[ Entry ID: ${entry.entry_id} ]    Added to favorites');
-                          } else {
-                            entriesModel.removeFromFavorites(entry);
-                            print(entriesModel.getFavoriteEntriesList());
-                            _showSnackBar(context,
-                                '[ Entry ID: ${entry.entry_id} ]    Removed from favorites');
-                          }
-                        }
-                      : null,
-                  icon: widget.isFav == false
-                      ? Icon(
-                          entriesModel.isEntryInFavorites(entry)
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          size: 20,
-                        )
-                      : Icon(Icons.favorite, size: 20),
+                  onPressed: () {
+                    entriesModel.deleteEntry(widget.index);
+                    entriesModel.fetchEntryList();
+                  },
+                  icon: Icon(Icons.delete, size: 20),
                 ),
                 // Edit button
                 ElevatedButtonWidget(
@@ -108,18 +90,14 @@ class _EntryWidgetState extends State<EntryWidget> {
                   width: 50,
                   height: 30,
                   borderRadius: 2,
-                  onPressed: widget.isFav == false
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ManipulateEntryScreen(
-                                entry: entry,
-                              ),
-                            ),
-                          );
-                        }
-                      : null,
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ManipulateEntryScreen(
+                        entry: entry,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -184,19 +162,25 @@ class _EntryWidgetState extends State<EntryWidget> {
                           // Show empty SizedBox() widget if,
                           // no image is there
                           Container(
-                            width: double.infinity,
+                            height: 200,
                             padding: EdgeInsets.all(1),
                             decoration: BoxDecoration(
                               border: Border.all(width: 1, color: Colors.grey),
                               borderRadius: BorderRadius.circular(2),
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(2),
-                              child: widget.image is File
-                                  ? Image.file(widget.image!,
-                                      fit: BoxFit.fitWidth)
-                                  : Image.asset(widget.image!.path,
-                                      fit: BoxFit.fitWidth),
+                            child: GestureDetector(
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ImageViewScreen(
+                                          image: UrlLocation.baseUrl +
+                                              widget.image!))),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(2),
+                                child: Image.network(
+                                    UrlLocation.baseUrl + widget.image!,
+                                    fit: BoxFit.scaleDown),
+                              ),
                             ),
                           ),
                         ],
@@ -206,15 +190,6 @@ class _EntryWidgetState extends State<EntryWidget> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: Duration(seconds: 2),
       ),
     );
   }

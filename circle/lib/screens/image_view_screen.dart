@@ -1,4 +1,6 @@
+import 'package:circle/configs/custom_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 
 class ImageViewScreen extends StatelessWidget {
   final String? image;
@@ -10,13 +12,16 @@ class ImageViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: CustomColors.background,
+        elevation: 0,
+      ),
       body: Center(
-        child: Container(
-          width: double.infinity,
-          child: Image.network(
-            image!,
+        child: PhotoView(
+          backgroundDecoration: BoxDecoration(
+            color: CustomColors.background,
           ),
+          imageProvider: NetworkImage(image!),
         ),
       ),
     );

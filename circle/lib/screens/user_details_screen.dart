@@ -83,8 +83,8 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(2),
-                              child: Image.network(
-                                'https://upload.wikimedia.org/wikipedia/en/d/d3/Hermione_Granger_poster.jpg',
+                              child: Image.asset(
+                                'assets/images/thaveesha.jpg',
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -151,104 +151,25 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Text('Full Name',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': Wedage Thaveesha Dheerasekera')
-                                    ],
-                                  ),
+                                  attributeWidget('Full Name',
+                                      'Wedage Thaveesha Dheerasekera'),
                                   const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('First Name',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': Thaveesha')
-                                    ],
-                                  ),
+                                  attributeWidget('First Name', 'Thaveesha'),
                                   const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('Surname',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': Dheerasekera')
-                                    ],
-                                  ),
+                                  attributeWidget('Surname', 'Dheerasekera'),
                                   const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('Username',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': thaveesha')
-                                    ],
-                                  ),
+                                  attributeWidget('Userame', 'thaveesha'),
                                   const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('Birthday',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w800)),
-                                      Text(': 04-Sept-2000')
-                                    ],
-                                  ),
+                                  attributeWidget('Birthday', '04-Sept-2000'),
                                   const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('NIC',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': 200025801815')
-                                    ],
-                                  ),
+                                  attributeWidget('NIC', '200024801915'),
                                   const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('Sex',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': Male')
-                                    ],
-                                  ),
+                                  attributeWidget('Sex', 'Male'),
                                   const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('Pronouns',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': He/Him')
-                                    ],
-                                  ),
+                                  attributeWidget('Address',
+                                      '92/A/18, Wasanawatta, Mattegoda'),
                                   const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('Country',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': Sri Lanka')
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('Address',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': 92/A/18, Wasanawatta, Mattegoda')
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Text('Tell No',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900)),
-                                      Text(': 714476760')
-                                    ],
-                                  ),
+                                  attributeWidget('Tell No', '714476760'),
                                 ],
                               ),
                             ),
@@ -282,6 +203,15 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Row attributeWidget(String title, String content) {
+    return Row(
+      children: [
+        Text(title, style: TextStyle(fontWeight: FontWeight.w900)),
+        Text(': ${content}')
+      ],
     );
   }
 }

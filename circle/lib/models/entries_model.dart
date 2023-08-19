@@ -1,98 +1,216 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
+import 'package:circle/configs/url_location.dart';
 import 'package:circle/entities/entry.dart';
 
 class EntriesModel extends ChangeNotifier {
-  List<Entry> _entries = [
-    Entry(
-      entry_id: 1,
-      title: 'Test Title 1',
-      content:
-          'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don\'t look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn\'t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.',
-      created_at: DateTime.now(),
-    ),
-    Entry(
-      entry_id: 2,
-      title: 'Test Title 2',
-      content:
-          'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don\'t look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn\'t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.',
-      created_at: DateTime.now(),
-    ),
-    Entry(
-      entry_id: 3,
-      title: 'Test Title 3',
-      content:
-          'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don\'t look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn\'t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.',
-      created_at: DateTime.now(),
-    ),
-    Entry(
-      entry_id: 4,
-      title: 'Test Title 4',
-      content:
-          'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don\'t look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn\'t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.',
-      created_at: DateTime.now(),
-    ),
-    Entry(
-      entry_id: 5,
-      title: 'Test Title 5',
-      content:
-          'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don\'t look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn\'t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.',
-      created_at: DateTime.now(),
-    ),
-  ];
+  // ------ Main Functions ------
 
-  List<Entry> _favoriteEntries = [];
+  List<Entry> _entries = [];
+
+  List<Entry> get entryList {
+    return _entries;
+  }
+
+  // fetchEntryList Future Model
+  Future<void> fetchEntryList() async {
+    try {
+      final url = Uri.parse('${UrlLocation.baseUrl}/entries/');
+      final response = await http.get(url);
+
+      if (response.statusCode >= 400) {
+        throw response.body;
+      }
+
+      final List<dynamic> data = json.decode(response.body)['entries'];
+
+      // Clear existing entries and add new entries in one operation
+      _entries
+        ..clear()
+        ..addAll(
+            // Using map to create Entry objects from entryListData
+            data
+                .map((item) => Entry(
+                      entry_id: item['entry_id'],
+                      title: item['title'],
+                      content: item['content'],
+                      image: item['image'] != null ? item['image'] : null,
+                      created_at: DateTime.parse(item['created_at']
+                          .substring(0, item['created_at'].length - 6)),
+                    ))
+                .toList());
+
+      // Notify listeners after updating entries
+      notifyListeners();
+    } catch (e) {
+      if (e is SocketException) {
+        print('Socket Exception: $e');
+        throw Exception('Failed to connect to the server.');
+      } else if (e is FormatException) {
+        print('Format Exception: $e');
+        throw Exception('Failed to parse response data.');
+      } else if (e is TimeoutException) {
+        print('Timeout Exception: $e');
+        throw Exception('Request timed out.');
+      } else {
+        print('Unknown Exception: $e');
+        throw Exception('An unknown error occurred.');
+      }
+    }
+  }
+
+  // createEntry function
+  Future<void> createEntry(
+    String title,
+    String content,
+    File? image,
+    int userId,
+  ) async {
+    try {
+      final url = Uri.parse('${UrlLocation.baseUrl}/entries/');
+
+      final request = http.MultipartRequest('POST', url)
+        ..fields['title'] = title
+        ..fields['content'] = content
+        ..fields['user'] = userId.toString();
+
+      if (image != null) {
+        final imageBytes = await image.readAsBytes();
+        request.files.add(http.MultipartFile.fromBytes(
+          'image',
+          imageBytes,
+          filename: image.path.split('/').last, // Change the filename as needed
+        ));
+      }
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 201) {
+        // Entry creation successful
+        print('Entry created successfully: $responseBody');
+      } else {
+        // Entry creation failed
+        print('Failed to create entry: $responseBody');
+        throw Exception('Failed to create entry');
+      }
+      fetchEntryList();
+      notifyListeners();
+    } catch (e) {
+      if (e is SocketException) {
+        print('Socket Exception: $e');
+        throw Exception('Failed to connect to the server.');
+      } else if (e is FormatException) {
+        print('Format Exception: $e');
+        throw Exception('Failed to parse response data.');
+      } else if (e is TimeoutException) {
+        print('Timeout Exception: $e');
+        throw Exception('Request timed out.');
+      } else {
+        print('Unknown Exception: $e');
+        throw Exception('An unknown error occurred.');
+      }
+    }
+  }
+
+  // updateEntry function
+  Future<void> updateEntry(
+    String entry_id,
+    String title,
+    String content,
+    File? image,
+  ) async {
+    try {
+      final url = Uri.parse('${UrlLocation.baseUrl}/entries/$entry_id/');
+
+      final request = http.MultipartRequest('PUT', url)
+        ..fields['title'] = title
+        ..fields['content'] = content;
+
+      if (image != null) {
+        final imageBytes = await image.readAsBytes();
+        request.files.add(http.MultipartFile.fromBytes(
+          'image',
+          imageBytes,
+          filename: image.path.split('/').last,
+        ));
+      }
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        // Entry update successful
+        print('Entry updated successfully: $responseBody');
+      } else {
+        // Entry update failed
+        print('Failed to update entry: $responseBody');
+        throw Exception('Failed to update entry');
+      }
+      fetchEntryList(); // Refresh the entry list
+      notifyListeners();
+    } catch (e) {
+      if (e is SocketException) {
+        print('Socket Exception: $e');
+        throw Exception('Failed to connect to the server.');
+      } else if (e is FormatException) {
+        print('Format Exception: $e');
+        throw Exception('Failed to parse response data.');
+      } else if (e is TimeoutException) {
+        print('Timeout Exception: $e');
+        throw Exception('Request timed out.');
+      } else {
+        print('Unknown Exception: $e');
+        throw Exception('An unknown error occurred.');
+      }
+    }
+  }
+
+  // deleteEntry function
+  Future<void> deleteEntry(int index) async {
+    try {
+      final entry = _entries[index];
+      final entry_id = entry.entry_id; // Get the entry_id from the entry
+      final url = Uri.parse('${UrlLocation.baseUrl}/entries/$entry_id/');
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        // Entry deletion successful
+        print('Entry deleted successfully');
+      } else {
+        // Entry deletion failed
+        print('Failed to delete entry: ${response.statusCode}');
+        throw Exception('Failed to delete entry');
+      }
+      notifyListeners();
+    } catch (e) {
+      if (e is SocketException) {
+        print('Socket Exception: $e');
+        throw Exception('Failed to connect to the server.');
+      } else if (e is FormatException) {
+        print('Format Exception: $e');
+        throw Exception('Failed to parse response data.');
+      } else if (e is TimeoutException) {
+        print('Timeout Exception: $e');
+        throw Exception('Request timed out.');
+      } else {
+        print('Unknown Exception: $e');
+        throw Exception('An unknown error occurred.');
+      }
+    }
+  }
+
+  // ------ Other Functions ------
+
   bool isCollapsed = false;
-
-  void addEntry(String title, String content, File? image) {
-    final newEntry = Entry(
-      entry_id: _entries.length + 1, // Calculate a new entry_id
-      title: title,
-      content: content,
-      image: image,
-      created_at: DateTime.now(),
-    );
-    _entries.add(newEntry);
-    notifyListeners();
-  }
-
-  void editEntry(int index, String title, String content, File? image) {
-    final entry = _entries[index];
-    entry.title = title;
-    entry.content = content;
-    entry.image = image;
-    notifyListeners();
-  }
-
-  // Check if an entry is in favorites
-  bool isEntryInFavorites(Entry entry) {
-    return _favoriteEntries.contains(entry);
-  }
-
-  // Add an entry to favorites
-  void addToFavorites(Entry entry) {
-    _favoriteEntries.add(entry);
-    notifyListeners();
-  }
-
-  // Remove an entry from favorites
-  void removeFromFavorites(Entry entry) {
-    _favoriteEntries.remove(entry);
-    notifyListeners();
-  }
 
   void toggleCollapseState(int index) {
     final entry = _entries[index];
     entry.isCollapsed = !entry.isCollapsed;
     notifyListeners();
-  }
-
-  List<Entry> getFavoriteEntriesList() {
-    return _favoriteEntries;
-  }
-
-  List<Entry> getEntriesList() {
-    return _entries;
   }
 }
