@@ -65,11 +65,7 @@ class EntriesModel extends ChangeNotifier {
 
   // createEntry function
   Future<void> createEntry(
-    String title,
-    String content,
-    File? image,
-    int userId,
-  ) async {
+      String title, String content, File? image, int userId) async {
     try {
       final url = Uri.parse('${UrlLocation.baseUrl}/entries/');
 
@@ -119,11 +115,7 @@ class EntriesModel extends ChangeNotifier {
 
   // updateEntry function
   Future<void> updateEntry(
-    String entry_id,
-    String title,
-    String content,
-    File? image,
-  ) async {
+      String entry_id, String title, String content, File? image) async {
     try {
       final url = Uri.parse('${UrlLocation.baseUrl}/entries/$entry_id/');
 

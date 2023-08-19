@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -57,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ? ref.entryList[index].image!
                                   : null, // Pass the image URL from the Entry object
                               created_at: ref.entryList[index]
-                                  .created_at!, // Pass the created date and time from the Entry object
+                                  .created_at, // Pass the created date and time from the Entry object
                             ),
                           );
                         },
