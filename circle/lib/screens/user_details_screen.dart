@@ -1,9 +1,7 @@
-import 'package:circle/configs/Constants.dart';
-import 'package:circle/screens/home_screen.dart';
-import 'package:circle/widget/global_widgets/bottom_nav_bar_widget.dart';
-import 'package:flutter/material.dart';
-
+import 'package:circle/repositories/auth_repository.dart';
 import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class UserDetailsScreen extends StatefulWidget {
   const UserDetailsScreen({super.key});
@@ -151,29 +149,17 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  attributeWidget('Full Name',
-                                      'Wedage Thaveesha Dheerasekera'),
-                                  const SizedBox(height: 5),
-                                  attributeWidget('First Name', 'Thaveesha'),
-                                  const SizedBox(height: 5),
-                                  attributeWidget('Surname', 'Dheerasekera'),
+                                  attributeWidget(
+                                      'Full Name', 'Thaveesha Dheerasekera'),
                                   const SizedBox(height: 5),
                                   attributeWidget('Userame', 'thaveesha'),
                                   const SizedBox(height: 5),
-                                  attributeWidget('Birthday', '04-Sept-2000'),
-                                  const SizedBox(height: 5),
-                                  attributeWidget('NIC', '200024801915'),
-                                  const SizedBox(height: 5),
-                                  attributeWidget('Sex', 'Male'),
-                                  const SizedBox(height: 5),
-                                  attributeWidget('Address',
-                                      '92/A/18, Wasanawatta, Mattegoda'),
-                                  const SizedBox(height: 5),
-                                  attributeWidget('Tell No', '714476760'),
+                                  attributeWidget(
+                                      'Email', 'thaveesha.001@gmail.com'),
                                 ],
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -198,7 +184,14 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
               width: double.infinity,
               height: 50,
               borderRadius: 2,
-              onPressed: null,
+              onPressed: () {
+                Provider.of<AuthRepository>(context, listen: false).signOut();
+              },
+              //   () async {
+              // // Future<void> _signOut() async {
+              // await AuthRepository().signOut();
+              // // }
+              // },
             ),
           ),
         ],

@@ -1,11 +1,16 @@
+import 'package:circle/configs/custom_colors.dart';
+import 'package:circle/firebase_options.dart';
+import 'package:circle/models/entries_model.dart';
+import 'package:circle/repositories/auth_repository.dart';
+import 'package:circle/screens/login_screen.dart';
+import 'package:circle/widget/global_widgets/bottom_nav_bar_widget.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:circle/configs/custom_colors.dart';
-import 'package:circle/models/entries_model.dart';
-import 'package:circle/widget/global_widgets/bottom_nav_bar_widget.dart';
-
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -17,6 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => EntriesModel()),
+        ChangeNotifierProvider(create: (context) => AuthRepository()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -62,7 +68,16 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        home: BottomNavBarWidget(),
+        home: StreamBuilder(
+          stream: AuthRepository().authStateChanges,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return BottomNavBarWidget();
+            } else {
+              return const LoginScreen();
+            }
+          },
+        ),
       ),
     );
   }

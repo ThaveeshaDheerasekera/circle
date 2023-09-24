@@ -1,10 +1,11 @@
+import 'package:circle/models/entries_model.dart';
+import 'package:circle/repositories/auth_repository.dart';
+import 'package:circle/screens/manipulate_entry_screen.dart';
+import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
+import 'package:circle/widget/home_screen_widgets/entry_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:circle/models/entries_model.dart';
-import 'package:circle/widget/home_screen_widgets/entry_widget.dart';
-import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
-import 'package:circle/screens/manipulate_entry_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,6 +15,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final User? user = AuthRepository().currentUSer;
+
+  Widget _userUid() {
+    return Text(user?.email ?? 'User email');
+  }
+
   @override
   void initState() {
     Provider.of<EntriesModel>(context, listen: false).fetchEntryList();
@@ -25,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Stack(
+        alignment: Alignment.bottomCenter,
         children: [
           Consumer<EntriesModel>(builder: (context, ref, child) {
             return RefreshIndicator(
@@ -69,9 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
           // Position the 'Add Entry' button
           // on the bottom of the page
           Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
+            // bottom: 0,
+            // left: 0,
+            // right: 0,
             child: ElevatedButtonWidget(
               child: Text(
                 'Add Entry',

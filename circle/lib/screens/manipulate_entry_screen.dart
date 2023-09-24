@@ -1,16 +1,15 @@
 import 'dart:io';
-import 'package:circle/configs/url_location.dart';
+
+import 'package:circle/configs/custom_colors.dart';
+import 'package:circle/entities/entry.dart';
+import 'package:circle/models/entries_model.dart';
+import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
+import 'package:circle/widget/global_widgets/form_item_widget.dart';
+import 'package:circle/widget/global_widgets/text_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-
-import 'package:circle/configs/custom_colors.dart';
-import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
-import 'package:circle/widget/global_widgets/text_field_widget.dart';
-import 'package:circle/entities/entry.dart';
-import 'package:circle/models/entries_model.dart';
-import 'package:circle/widget/global_widgets/form_item_widget.dart';
 
 class ManipulateEntryScreen extends StatefulWidget {
   final Entry? entry;
@@ -157,53 +156,11 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
                           title: 'Content',
                           onPressed: () => _contentController.clear(),
                           child: TextFieldWidget(
-                            maxLines: 15,
+                            maxLines: 20,
                             hintText: 'My friends and I went to Kandy...',
                             controller: _contentController,
                             keyboardType: TextInputType.multiline,
                             textCapitalization: TextCapitalization.sentences,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        FormItemWidget(
-                          title: 'Add a photo',
-                          onPressed: () => clearImage(),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 200,
-                                decoration: BoxDecoration(
-                                  border:
-                                      Border.all(width: 1, color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                                child: image != null
-                                    ? Image.file(image!, fit: BoxFit.scaleDown)
-                                    : Center(
-                                        child: Text(
-                                          widget.entry?.image != null
-                                              ? 'Choose a new image from your\ngallery or take a photo.\nYou can leave it blank\nif you do not wish to\nupdate the current photo.'
-                                              : 'Choose an image from your\ngallery or take a photo.\nYou can leave it blank.',
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                              ),
-                              const SizedBox(height: 15),
-                              ElevatedButtonWidget(
-                                child: Text('Gallery'),
-                                width: 150,
-                                height: 35,
-                                borderRadius: 2,
-                                onPressed: () => pickImage(ImageSource.gallery),
-                              ),
-                              ElevatedButtonWidget(
-                                child: Text('Camera'),
-                                width: 150,
-                                height: 35,
-                                borderRadius: 2,
-                                onPressed: () => pickImage(ImageSource.camera),
-                              ),
-                            ],
                           ),
                         ),
                         const SizedBox(height: 15),
@@ -243,3 +200,50 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
     );
   }
 }
+
+// -------------------------
+
+// -- This is the add image method --
+// const SizedBox(height: 15),
+// FormItemWidget(
+// title: 'Add a photo',
+// onPressed: () => clearImage(),
+// child: Column(
+// children: [
+// Container(
+// height: 200,
+// decoration: BoxDecoration(
+// border:
+// Border.all(width: 1, color: Colors.grey),
+// borderRadius: BorderRadius.circular(2),
+// ),
+// child: image != null
+// ? Image.file(image!, fit: BoxFit.scaleDown)
+//     : Center(
+// child: Text(
+// widget.entry?.image != null
+// ? 'Choose a new image from your\ngallery or take a photo.\nYou can leave it blank\nif you do not wish to\nupdate the current photo.'
+//     : 'Choose an image from your\ngallery or take a photo.\nYou can leave it blank.',
+// textAlign: TextAlign.center,
+// ),
+// ),
+// ),
+// const SizedBox(height: 15),
+// ElevatedButtonWidget(
+// child: Text('Gallery'),
+// width: 150,
+// height: 35,
+// borderRadius: 2,
+// onPressed: () => pickImage(ImageSource.gallery),
+// ),
+// ElevatedButtonWidget(
+// child: Text('Camera'),
+// width: 150,
+// height: 35,
+// borderRadius: 2,
+// onPressed: () => pickImage(ImageSource.camera),
+// ),
+// ],
+// ),
+// ),
+// ----
