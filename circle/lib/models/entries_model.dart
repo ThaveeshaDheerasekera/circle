@@ -1,16 +1,29 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:circle/configs/url_location.dart';
 import 'package:circle/entities/entry.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class EntriesModel extends ChangeNotifier {
   // ------ Main Functions ------
 
-  List<Entry> _entries = [];
+  List<Entry> _entries = [
+    Entry(
+        entry_id: '1234',
+        title: 'Test Title',
+        content:
+            'Test ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest Content',
+        created_at: DateTime.now()),
+    Entry(
+        entry_id: '1235',
+        title: 'Test Title1',
+        content:
+            'Test ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest ContentTest Content',
+        created_at: DateTime.now()),
+  ];
 
   List<Entry> get entryList {
     return _entries;

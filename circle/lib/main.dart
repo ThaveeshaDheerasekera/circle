@@ -2,6 +2,7 @@ import 'package:circle/configs/custom_colors.dart';
 import 'package:circle/firebase_options.dart';
 import 'package:circle/models/entries_model.dart';
 import 'package:circle/repositories/auth_repository.dart';
+import 'package:circle/repositories/notes_repository.dart';
 import 'package:circle/screens/login_screen.dart';
 import 'package:circle/widget/global_widgets/bottom_nav_bar_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => EntriesModel()),
         ChangeNotifierProvider(create: (context) => AuthRepository()),
+        ChangeNotifierProvider(create: (context) => NotesRepository()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -72,6 +74,8 @@ class MyApp extends StatelessWidget {
           stream: AuthRepository().authStateChanges,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
+              Provider.of<AuthRepository>(context, listen: false)
+                  .clearMessage();
               return BottomNavBarWidget();
             } else {
               return const LoginScreen();

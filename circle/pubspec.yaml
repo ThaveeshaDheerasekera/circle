@@ -47,6 +47,7 @@ dependencies:
   firebase_database: ^10.2.6
   cloud_firestore: ^4.9.2
   firebase_auth: ^4.10.0
+  fluentui_system_icons: ^1.1.217
 
 dev_dependencies:
   flutter_test:

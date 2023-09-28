@@ -1,22 +1,23 @@
-import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
 import 'package:flutter/material.dart';
 
-class FormItemWidget extends StatelessWidget {
-  const FormItemWidget({
+class TitleWidget extends StatelessWidget {
+  const TitleWidget({
     Key? key,
     required this.title,
-    required this.onPressed,
+    required this.actions,
     required this.child,
   }) : super(key: key);
 
   final String title;
-  final VoidCallback? onPressed;
+  final List<Widget> actions;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      // Padding of the main container
+      // No top padding
       padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -26,6 +27,8 @@ class FormItemWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // This is the header bar
+          // grey color with 0.5 opacity
           Container(
             height: 50,
             width: double.infinity,
@@ -40,6 +43,7 @@ class FormItemWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Title of the TitleWidget
                 Expanded(
                   child: Container(
                     margin: EdgeInsets.only(right: 15),
@@ -50,17 +54,14 @@ class FormItemWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                ElevatedButtonWidget(
-                  child: Text('Clear'),
-                  width: 50,
-                  height: 30,
-                  borderRadius: 2,
-                  onPressed: onPressed,
-                ),
+                // Actions of the TitleWidget,
+                // Such as, edit button and clear button
+                ...actions,
               ],
             ),
           ),
           const SizedBox(height: 15),
+          // Child of the TitleWidget
           child,
         ],
       ),

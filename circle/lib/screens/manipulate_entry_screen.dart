@@ -1,20 +1,21 @@
 import 'dart:io';
 
 import 'package:circle/configs/custom_colors.dart';
-import 'package:circle/entities/entry.dart';
-import 'package:circle/models/entries_model.dart';
+import 'package:circle/entities/note.dart';
+import 'package:circle/repositories/notes_repository.dart';
 import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
-import 'package:circle/widget/global_widgets/form_item_widget.dart';
 import 'package:circle/widget/global_widgets/text_field_widget.dart';
+import 'package:circle/widget/global_widgets/title_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class ManipulateEntryScreen extends StatefulWidget {
-  final Entry? entry;
+  final Note? note;
 
-  const ManipulateEntryScreen({Key? key, this.entry}) : super(key: key);
+  const ManipulateEntryScreen({
+    Key? key,
+    this.note,
+  }) : super(key: key);
 
   @override
   State<ManipulateEntryScreen> createState() => _ManipulateEntryScreenState();
@@ -26,7 +27,10 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
   File? image;
 
   void onSubmit() {
-    final model = Provider.of<EntriesModel>(context, listen: false);
+    print(_titleController.text);
+    print(_contentController.text);
+
+    final model = Provider.of<NotesRepository>(context, listen: false);
 
     // Get the title text and content text
     final title = _titleController.text;
@@ -36,53 +40,53 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
     // If !empty --> proceed
     // If empty --> show error message saying title or content is missing
     if (title.isNotEmpty && content.isNotEmpty) {
-      // If this screen is called without an Entry object passed as a parameter,
-      // Treats like a new entry,
+      // If this screen is called without an Note object passed as a parameter,
+      // Treats like a new note,
       // Otherwise get the existing values and display them and,
       // Update them if those values are updated
-      if (widget.entry == null) {
-        model.createEntry(title, content, image, 1);
-        // Navigate back after adding the entry
+      if (widget.note == null) {
+        model.createNote(title, content);
+        // Navigate back after adding the note
         Navigator.pop(context);
-        _showSnackBar(context, 'New entry added successfully.');
+        _showSnackBar(context, 'New note added successfully.');
       } else {
-        // If an existing entry is being updated...
-        if (image == null) {
-          // If the image is cleared, update the entry with null as the image
-          model.updateEntry(widget.entry!.entry_id, title, content, null);
-        } else {
-          // If a new image is selected, update the entry with the new image
-          model.updateEntry(widget.entry!.entry_id, title, content, image);
-        }
+        print('---- Update Method ----');
+        // If an existing note is being updated...
+        model.updateNote(
+          noteId: widget.note!.note_id,
+          title: _titleController.text,
+          content: _contentController.text,
+        );
+        // model.updateEntry(widget.note!.note_id, title, content);
         // Navigate back after adding/updating the entry
         Navigator.pop(context);
         _showSnackBar(context,
-            '[ Entry ID: ${widget.entry!.entry_id} ] Updated successfully.');
+            '[ Note ID: ${widget.note!.note_id} ] Updated successfully.');
       }
     } else {
       _showSnackBar(context, 'Title and content are required.');
     }
   }
 
-  // Image picker functionality
-  Future pickImage(ImageSource source) async {
-    try {
-      final image = await ImagePicker().pickImage(source: source);
-      if (image == null) return;
-      final imageTemp = File(image.path);
-      setState(() => this.image = imageTemp);
-    } on PlatformException catch (e) {
-      _showSnackBar(context, 'Failed to pick image: $e');
-    }
-  }
-
-  // Function to clear the image
-  void clearImage() {
-    print('clear');
-    setState(() {
-      image = null;
-    });
-  }
+  // // Image picker functionality
+  // Future pickImage(ImageSource source) async {
+  //   try {
+  //     final image = await ImagePicker().pickImage(source: source);
+  //     if (image == null) return;
+  //     final imageTemp = File(image.path);
+  //     setState(() => this.image = imageTemp);
+  //   } on PlatformException catch (e) {
+  //     _showSnackBar(context, 'Failed to pick image: $e');
+  //   }
+  // }
+  //
+  // // Function to clear the image
+  // void clearImage() {
+  //   print('clear');
+  //   setState(() {
+  //     image = null;
+  //   });
+  // }
 
   @override
   void initState() {
@@ -91,9 +95,9 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
     _contentController.text = '';
     // Used for the update method
     // Check if an Entry object is passed
-    if (widget.entry != null) {
-      _titleController.text = widget.entry!.title;
-      _contentController.text = widget.entry!.content;
+    if (widget.note != null) {
+      _titleController.text = widget.note!.title;
+      _contentController.text = widget.note!.content;
     }
   }
 
@@ -110,7 +114,7 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            widget.entry == null ? 'Add Entry' : 'Update Entry',
+            widget.note == null ? 'Add Note' : 'Update Note',
             style: TextStyle(fontSize: 20),
           ),
           centerTitle: true,
@@ -140,9 +144,17 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
                     margin: EdgeInsets.only(top: 15),
                     child: Column(
                       children: [
-                        FormItemWidget(
+                        TitleWidget(
                           title: 'Title',
-                          onPressed: () => _titleController.clear(),
+                          actions: [
+                            ElevatedButtonWidget(
+                              child: Text('Clear'),
+                              width: 50,
+                              height: 30,
+                              borderRadius: 2,
+                              onPressed: () => _titleController.clear(),
+                            ),
+                          ],
                           child: TextFieldWidget(
                             maxLength: 50,
                             hintText: 'Title',
@@ -152,9 +164,17 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        FormItemWidget(
+                        TitleWidget(
                           title: 'Content',
-                          onPressed: () => _contentController.clear(),
+                          actions: [
+                            ElevatedButtonWidget(
+                              child: Text('Clear'),
+                              width: 50,
+                              height: 30,
+                              borderRadius: 2,
+                              onPressed: () => _contentController.clear(),
+                            ),
+                          ],
                           child: TextFieldWidget(
                             maxLines: 20,
                             hintText: 'My friends and I went to Kandy...',
@@ -175,13 +195,13 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
                 right: 0,
                 child: ElevatedButtonWidget(
                   child: Text(
-                    widget.entry == null ? 'Add Entry' : 'Update Entry',
+                    widget.note == null ? 'Add Note' : 'Update Note',
                     style: TextStyle(fontSize: 16),
                   ),
                   width: 100,
                   height: 50,
                   borderRadius: 2,
-                  onPressed: () => onSubmit(),
+                  onPressed: onSubmit,
                 ),
               ),
             ],
