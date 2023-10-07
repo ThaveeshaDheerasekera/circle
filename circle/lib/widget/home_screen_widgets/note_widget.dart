@@ -1,6 +1,6 @@
 import 'package:circle/entities/note.dart';
 import 'package:circle/repositories/notes_repository.dart';
-import 'package:circle/screens/manipulate_entry_screen.dart';
+import 'package:circle/screens/manipulate_note_screen.dart';
 import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
 import 'package:circle/widget/global_widgets/title_widget.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -43,7 +43,7 @@ class _NoteWidgetState extends State<NoteWidget> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ManipulateEntryScreen(
+                builder: (context) => ManipulateNoteScreen(
                   note: widget.note,
                 ),
               ),

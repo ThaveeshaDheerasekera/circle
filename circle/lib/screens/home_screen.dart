@@ -1,5 +1,5 @@
 import 'package:circle/repositories/notes_repository.dart';
-import 'package:circle/screens/manipulate_entry_screen.dart';
+import 'package:circle/screens/manipulate_note_screen.dart';
 import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
 import 'package:circle/widget/home_screen_widgets/note_widget.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ManipulateEntryScreen(),
+                  builder: (context) => ManipulateNoteScreen(),
                 ),
               );
             },

@@ -10,19 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class ManipulateEntryScreen extends StatefulWidget {
+class ManipulateNoteScreen extends StatefulWidget {
   final Note? note;
 
-  const ManipulateEntryScreen({
+  const ManipulateNoteScreen({
     Key? key,
     this.note,
   }) : super(key: key);
 
   @override
-  State<ManipulateEntryScreen> createState() => _ManipulateEntryScreenState();
+  State<ManipulateNoteScreen> createState() => _ManipulateNoteScreenState();
 }
 
-class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
+class _ManipulateNoteScreenState extends State<ManipulateNoteScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   File? image;
