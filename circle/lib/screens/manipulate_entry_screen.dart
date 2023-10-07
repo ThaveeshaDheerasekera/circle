@@ -7,6 +7,7 @@ import 'package:circle/widget/global_widgets/elevated_button_widget.dart';
 import 'package:circle/widget/global_widgets/text_field_widget.dart';
 import 'package:circle/widget/global_widgets/title_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ManipulateEntryScreen extends StatefulWidget {
@@ -114,16 +115,26 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            widget.note == null ? 'Add Note' : 'Update Note',
+            widget.note == null
+                ? 'Add Note'
+                : DateFormat('dd-MMM-yyyy | HH:mm:ss')
+                    .format(widget.note!.created_at),
             style: TextStyle(fontSize: 20),
           ),
           centerTitle: true,
           backgroundColor: CustomColors.olive,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.close,
+              color: Colors.black87,
+            ),
+          ),
           actions: [
             IconButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: onSubmit,
               icon: Icon(
-                Icons.close,
+                Icons.done,
                 color: Colors.black87,
               ),
             ),
@@ -134,77 +145,68 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
           width: double.infinity,
           color: CustomColors.background,
           padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-          child: Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(bottom: 50),
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Container(
-                    margin: EdgeInsets.only(top: 15),
-                    child: Column(
-                      children: [
-                        TitleWidget(
-                          title: 'Title',
-                          actions: [
-                            ElevatedButtonWidget(
-                              child: Text('Clear'),
-                              width: 50,
-                              height: 30,
-                              borderRadius: 2,
-                              onPressed: () => _titleController.clear(),
-                            ),
-                          ],
-                          child: TextFieldWidget(
-                            maxLength: 50,
-                            hintText: 'Title',
-                            controller: _titleController,
-                            keyboardType: TextInputType.text,
-                            textCapitalization: TextCapitalization.words,
+          child: Container(
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Container(
+                margin: EdgeInsets.only(top: 15),
+                child: Column(
+                  children: [
+                    TitleWidget(
+                      title: 'Title',
+                      actions: [
+                        ElevatedButtonWidget(
+                          child: Text('Clear'),
+                          width: 50,
+                          height: 30,
+                          borderRadius: 2,
+                          onPressed: () => _showModalBottomSheet(
+                            context,
+                            onPressed: () {
+                              _titleController.clear();
+                              Navigator.of(context).pop();
+                            },
                           ),
                         ),
-                        const SizedBox(height: 15),
-                        TitleWidget(
-                          title: 'Content',
-                          actions: [
-                            ElevatedButtonWidget(
-                              child: Text('Clear'),
-                              width: 50,
-                              height: 30,
-                              borderRadius: 2,
-                              onPressed: () => _contentController.clear(),
-                            ),
-                          ],
-                          child: TextFieldWidget(
-                            maxLines: 20,
-                            hintText: 'My friends and I went to Kandy...',
-                            controller: _contentController,
-                            keyboardType: TextInputType.multiline,
-                            textCapitalization: TextCapitalization.sentences,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
                       ],
+                      child: TextFieldWidget(
+                        maxLength: 50,
+                        hintText: 'Title',
+                        controller: _titleController,
+                        keyboardType: TextInputType.text,
+                        textCapitalization: TextCapitalization.words,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 15),
+                    TitleWidget(
+                      title: 'Content',
+                      actions: [
+                        ElevatedButtonWidget(
+                          child: Text('Clear'),
+                          width: 50,
+                          height: 30,
+                          borderRadius: 2,
+                          onPressed: () => _showModalBottomSheet(
+                            context,
+                            onPressed: () {
+                              _contentController.clear();
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                      ],
+                      child: TextFieldWidget(
+                        maxLines: 20,
+                        hintText: 'Type...',
+                        controller: _contentController,
+                        keyboardType: TextInputType.multiline,
+                        textCapitalization: TextCapitalization.sentences,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: ElevatedButtonWidget(
-                  child: Text(
-                    widget.note == null ? 'Add Note' : 'Update Note',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  width: 100,
-                  height: 50,
-                  borderRadius: 2,
-                  onPressed: onSubmit,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -217,6 +219,38 @@ class _ManipulateEntryScreenState extends State<ManipulateEntryScreen> {
         content: Text(message),
         duration: Duration(seconds: 2),
       ),
+    );
+  }
+
+  void _showModalBottomSheet(BuildContext context,
+      {required VoidCallback onPressed}) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Are you sure?'),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: onPressed,
+                    child: Text('Yes'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('No'),
+                    autofocus: true,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

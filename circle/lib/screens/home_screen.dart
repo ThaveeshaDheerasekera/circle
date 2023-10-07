@@ -21,72 +21,57 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          Consumer<NotesRepository>(builder: (context, ref, child) {
-            return RefreshIndicator(
-              onRefresh: () async {
-                await ref.fetchNoteList();
-              },
-              child: Padding(
-                // Adding a bottom padding to
-                // get the list items above the button
-                padding: const EdgeInsets.only(bottom: 50),
-                child: ref.getNotes.length != 0
-                    ? ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: ref.getNotes.length,
-                        physics: AlwaysScrollableScrollPhysics(),
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                            margin: EdgeInsets.only(
-                                top: 15,
-                                // Checking for the last item of the list
-                                // adding padding (15) only to the last item on the list
-                                bottom:
-                                    index != ref.getNotes.length - 1 ? 0 : 15),
-                            child: NoteWidget(note: ref.getNotes[index]),
-                          );
-                        },
-                      )
-                    : Center(
-                        child: Text('No Entries yet...'),
-                      ),
-              ),
-            );
-          }),
-          // Position the 'Add Entry' button
-          // on the bottom of the page
-          Positioned(
-            child: ElevatedButtonWidget(
-              child: Text(
-                'Add Note',
-                style: TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              width: double.infinity,
-              height: 50,
-              borderRadius: 2,
-              onPressed: () {
-                // Provider.of<NotesRepository>(context, listen: false)
-                //     .createNote();
-                // print('----- Add Note Executed ----');
-                // Navigate to AddEntryScreen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ManipulateEntryScreen(),
-                  ),
+    return Stack(
+      children: [
+        Consumer<NotesRepository>(builder: (context, ref, child) {
+          return ref.getNotes.length != 0
+              ? ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: ref.getNotes.length,
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    return Container(
+                      margin: EdgeInsets.only(
+                          top: 15,
+                          // Checking for the last item of the list
+                          // adding padding (15) only to the last item on the list
+                          bottom: index != ref.getNotes.length - 1 ? 0 : 80),
+                      child: NoteWidget(note: ref.getNotes[index]),
+                    );
+                  },
+                )
+              : Center(
+                  child: Text('No Entries yet...'),
                 );
-              },
+        }),
+        // Position the 'Add Entry' button
+        // on the bottom of the page
+        Positioned(
+          right: 0,
+          left: 0,
+          bottom: 15,
+          child: ElevatedButtonWidget(
+            child: Text(
+              'Add Note',
+              style: TextStyle(
+                fontSize: 16,
+              ),
             ),
+            width: double.infinity,
+            height: 50,
+            borderRadius: 2,
+            onPressed: () {
+              // Navigate to AddEntryScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ManipulateEntryScreen(),
+                ),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -33,7 +33,7 @@ class _NoteWidgetState extends State<NoteWidget> {
       actions: [
         // Edit button
         ElevatedButtonWidget(
-          child: Text('Edit'),
+          child: Text('Open'),
           width: 50,
           height: 30,
           borderRadius: 2,
@@ -144,9 +144,13 @@ class _NoteWidgetState extends State<NoteWidget> {
                   border: Border.all(width: 1, color: Colors.grey),
                 ),
                 child: IconButton(
-                  onPressed: () {
-                    model.deleteNote(widget.note.note_id);
-                  },
+                  onPressed: () => _showModalBottomSheet(
+                    context,
+                    onPressed: () {
+                      model.deleteNote(widget.note.note_id);
+                      Navigator.pop(context);
+                    },
+                  ),
                   visualDensity: VisualDensity.compact,
 
                   icon: Icon(FluentIcons.delete_20_filled, size: 20),
@@ -157,6 +161,38 @@ class _NoteWidgetState extends State<NoteWidget> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showModalBottomSheet(BuildContext context,
+      {required VoidCallback onPressed}) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Are you sure?'),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: onPressed,
+                    child: Text('Yes'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('No'),
+                    autofocus: true,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -13,38 +13,29 @@ class FavoriteScreen extends StatefulWidget {
 class _HomeScreenState extends State<FavoriteScreen> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: Consumer<NotesRepository>(
-        builder: (context, ref, child) {
-          return Padding(
-            // Adding a bottom padding to
-            // get the list items above the button
-            padding: const EdgeInsets.only(bottom: 50),
-            child: ref.getFavoriteNotes.length != 0
-                ? ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: ref.getFavoriteNotes.length,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                        margin: EdgeInsets.only(
-                            top: 15,
-                            // Checking for the last item of the list
-                            // adding padding (15) only to the last item on the list
-                            bottom: index != ref.getFavoriteNotes.length - 1
-                                ? 0
-                                : 15),
-                        child: NoteWidget(note: ref.getFavoriteNotes[index]),
-                      );
-                    },
-                  )
-                : Center(
-                    child: Text('Favorite list is empty...'),
-                  ),
-          );
-        },
-      ),
+    return Consumer<NotesRepository>(
+      builder: (context, ref, child) {
+        return ref.getFavoriteNotes.length != 0
+            ? ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: ref.getFavoriteNotes.length,
+                physics: BouncingScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                    margin: EdgeInsets.only(
+                        top: 15,
+                        // Checking for the last item of the list
+                        // adding padding (15) only to the last item on the list
+                        bottom:
+                            index != ref.getFavoriteNotes.length - 1 ? 0 : 15),
+                    child: NoteWidget(note: ref.getFavoriteNotes[index]),
+                  );
+                },
+              )
+            : Center(
+                child: Text('Favorite list is empty...'),
+              );
+      },
     );
   }
 }
